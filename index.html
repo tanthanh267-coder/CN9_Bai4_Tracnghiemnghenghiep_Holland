@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Sở Thích Nghề Nghiệp Holland (RIASEC)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        riasec: {
+                            R: '#ef4444', // Red - Realistic
+                            I: '#0284c7', // Blue - Investigative
+                            A: '#8b5cf6', // Purple - Artistic
+                            S: '#10b981', // Emerald - Social
+                            E: '#f59e0b', // Amber - Enterprising
+                            C: '#64748b'  // Slate - Conventional
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 antialiased flex flex-col min-h-screen selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToWelcome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <i class="fa-solid fa-compass text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">Holland Career Profiler</h1>
+                    <p class="text-xs text-slate-500 font-medium">Trắc nghiệm định hướng nghề nghiệp RIASEC</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button id="btn-restart" onclick="confirmReset()" class="hidden text-xs font-semibold px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Làm lại bài test</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-center">
+
+        <!-- SCREEN 1: Welcome Screen -->
+        <section id="view-welcome" class="animate-fade-in max-w-4xl mx-auto w-full">
+            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+                <div class="p-8 sm:p-12 text-center bg-gradient-to-b from-slate-50/80 to-white border-b border-slate-100">
+                    <span class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-6">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Lý thuyết Mật mã Holland (RIASEC)</span>
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+                        Khám Phá Bản Thân & Định Hướng Sự Nghiệp Tương Lai
+                    </h2>
+                    <p class="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto font-normal">
+                        Bài trắc nghiệm gồm 30 câu hỏi giúp đánh giá chính xác xu hướng sở thích, nhóm tính cách nghề nghiệp và đề xuất các ngành nghề phù hợp nhất với bạn.
+                    </p>
+                </div>
+
+                <!-- 6 Groups Overview Grid -->
+                <div class="p-6 sm:p-8 bg-slate-50/50">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">6 Nhóm sở thích nghề nghiệp trong mô hình RIASEC</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-start space-x-3">
+                            <div class="p-2.5 rounded-xl bg-red-50 text-red-600 font-bold shrink-0">R</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Thực tế (Realistic)</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Thích kỹ thuật, máy móc, ngoài trời</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-start space-x-3">
+                            <div class="p-2.5 rounded-xl bg-sky-50 text-sky-600 font-bold shrink-0">I</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Nghiên cứu (Investigative)</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Thích quan sát, phân tích, tư duy</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-start space-x-3">
+                            <div class="p-2.5 rounded-xl bg-purple-50 text-purple-600 font-bold shrink-0">A</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Nghệ thuật (Artistic)</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Thích sáng tạo, tự do, thẩm mỹ</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-start space-x-3">
+                            <div class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 font-bold shrink-0">S</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Xã hội (Social)</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Thích hỗ trợ, giảng dạy, giao tiếp</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-start space-x-3">
+                            <div class="p-2.5 rounded-xl bg-amber-50 text-amber-600 font-bold shrink-0">E</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Thuyết phục (Enterprising)</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Thích lãnh đạo, kinh doanh, bán hàng</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-start space-x-3">
+                            <div class="p-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold shrink-0">C</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Trật tự (Conventional)</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Thích quy trình, con số, tỉ mỉ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-8 text-center bg-white border-t border-slate-100">
+                    <button onclick="startQuiz()" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all duration-200 transform hover:-translate-y-0.5 inline-flex items-center space-x-3 text-base">
+                        <span>Bắt đầu thực hiện bài trắc nghiệm</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <p class="text-xs text-slate-400 mt-3"><i class="fa-regular fa-clock mr-1"></i>Thời gian hoàn thành trung bình: 5 - 8 phút</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: Quiz Assessment View -->
+        <section id="view-quiz" class="hidden animate-fade-in max-w-3xl mx-auto w-full">
+            <!-- Progress Topbar -->
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200/80 mb-6">
+                <div class="flex items-center justify-between mb-3 text-sm">
+                    <span class="font-bold text-slate-700" id="quiz-page-title">Trang 1 / 6</span>
+                    <span class="font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full text-xs" id="quiz-progress-text">0/30 đã trả lời</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="h-full bg-indigo-600 transition-all duration-300 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Questions Container -->
+            <div id="questions-list" class="space-y-6">
+                <!-- Dynamically Rendered Questions -->
+            </div>
+
+            <!-- Quiz Navigation Bottombar -->
+            <div class="flex items-center justify-between mt-8 pt-4 border-t border-slate-200">
+                <button id="btn-prev" onclick="prevPage()" class="px-5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-600 hover:bg-slate-100 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                    <span>Trang trước</span>
+                </button>
+                <button id="btn-next" onclick="nextPage()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition flex items-center space-x-2 shadow-md shadow-indigo-100">
+                    <span id="btn-next-label">Tiếp theo</span>
+                    <i class="fa-solid fa-chevron-right text-xs" id="btn-next-icon"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: Results & AI Career Advisory View -->
+        <section id="view-results" class="hidden animate-fade-in max-w-5xl mx-auto w-full space-y-8">
+            
+            <!-- Result Summary Card -->
+            <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div>
+                        <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-xs font-semibold uppercase tracking-wider mb-3">
+                            Kết Quả Trắc Nghiệm Của Bạn
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                            Mật Mã Holland Của Bạn: <span id="top-holland-code" class="text-amber-400 font-mono tracking-widest bg-amber-400/10 px-3 py-1 rounded-xl border border-amber-400/20">---</span>
+                        </h2>
+                        <p class="text-indigo-200 text-sm mt-2 max-w-xl" id="top-holland-summary">
+                            Đang tổng hợp kết quả nhóm sở thích trội nhất của bạn...
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 shrink-0">
+                        <button onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold backdrop-blur transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>In / Lưu PDF</span>
+                        </button>
+                        <button onclick="fetchGeminiAdvice()" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 text-sm font-bold transition flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20">
+                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-900"></i>
+                            <span>Tư Vấn AI Gemini</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Radar Chart -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 self-start flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-600"></i>
+                        <span>Biểu Đồ Sơ Đồ Mạng Holland (Radar)</span>
+                    </h3>
+                    <div class="w-full max-w-md h-72 relative">
+                        <canvas id="chart-radar"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bar Score Breakdown -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-simple text-indigo-600"></i>
+                            <span>Điểm Số Chi Tiết Theo 6 Nhóm</span>
+                        </h3>
+                        <div id="scores-breakdown-list" class="space-y-3.5">
+                            <!-- Dynamic Bar Items -->
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4 italic">
+                        *Thang điểm tối đa cho mỗi nhóm là 25 điểm (5 câu x 5 điểm)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Gemini AI Advice Modal / Section Card -->
+            <div id="ai-advice-container" class="hidden bg-white rounded-3xl border border-indigo-100 p-6 sm:p-8 shadow-lg shadow-indigo-100/50 transition-all">
+                <div class="flex items-center space-x-3 border-b border-slate-100 pb-4 mb-6">
+                    <div class="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600">
+                        <i class="fa-solid fa-robot text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Phân Tích & Tư Vấn Chuyên Sâu Từ AI Gemini</h3>
+                        <p class="text-xs text-slate-500">Được tổng hợp cá nhân hóa theo hồ sơ năng lực RIASEC của bạn</p>
+                    </div>
+                </div>
+                
+                <div id="ai-advice-loading" class="py-12 text-center hidden">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent mb-3"></div>
+                    <p class="text-sm text-slate-600 font-medium">AI đang phân tích kết quả và xây dựng định hướng sự nghiệp...</p>
+                </div>
+
+                <div id="ai-advice-content" class="prose prose-slate max-w-none text-slate-700 text-sm leading-relaxed space-y-4">
+                    <!-- AI Content rendered here -->
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown of Top Holland Types -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-briefcase text-indigo-600"></i>
+                    <span>Chi Tiết Xu Hướng & Ngành Nghề Gợi Ý</span>
+                </h3>
+                <div id="top-types-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Dynamically filled with top 3 type cards -->
+                </div>
+            </div>
+
+            <!-- Career Recommendations Table/Grid -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Danh Mục Nghề Nghiệp Phù Hợp Nổi Bật</h3>
+                        <p class="text-xs text-slate-500">Gợi ý lộ trình việc làm tối ưu cho tổ hợp tính cách của bạn</p>
+                    </div>
+                    <div class="flex items-center space-x-2" id="filter-pills">
+                        <!-- Filter buttons dynamically built -->
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="careers-recommend-grid">
+                    <!-- Recommended Careers List -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Holland Career Profiler • Xây dựng theo Lý thuyết Định hướng Nghề nghiệp John Holland</p>
+        </div>
+    </footer>
+
+    <script>
+        // Holland Questions Dataset (30 statements, 5 per group)
+        const HOLLAND_QUESTIONS = [
+            // R - Realistic (Thực tế)
+            { id: 1, type: 'R', text: 'Tôi thích sửa chữa các thiết bị điện, máy móc hoặc đồ đạc trong nhà.' },
+            { id: 2, type: 'R', text: 'Tôi thích các hoạt động vận động ngoài trời như cắm trại, làm vườn, xây dựng.' },
+            { id: 3, type: 'R', text: 'Tôi làm việc tốt hơn khi được trực tiếp thao tác thực hành với công cụ, vật liệu.' },
+            { id: 4, type: 'R', text: 'Tôi hứng thú với việc lắp ráp máy tính, mô hình cơ khí hoặc làm sản phẩm thủ công.' },
+            { id: 5, type: 'R', text: 'Tôi thích giải quyết vấn đề bằng hành động thực tế hơn là suy nghĩ lý thuyết.' },
+
+            // I - Investigative (Nghiên cứu)
+            { id: 6, type: 'I', text: 'Tôi thích giải các bài toán khó, câu đố logic hoặc thử thách trí tuệ.' },
+            { id: 7, type: 'I', text: 'Tôi thích tìm hiểu nguyên lý khoa học, công nghệ hoặc quy luật tự nhiên.' },
+            { id: 8, type: 'I', text: 'Tôi thường đọc sách, tài liệu chuyên sâu để phân tích bản chất của sự việc.' },
+            { id: 9, type: 'I', text: 'Tôi thích thực hiện các nghiên cứu, quan sát và thu thập dữ liệu.' },
+            { id: 10, type: 'I', text: 'Tôi coi trọng tư duy độc lập, khách quan và lập luận có căn cứ.' },
+
+            // A - Artistic (Nghệ thuật)
+            { id: 11, type: 'A', text: 'Tôi thích vẽ, thiết kế đồ họa, chụp ảnh hoặc sáng tạo hình ảnh.' },
+            { id: 12, type: 'A', text: 'Tôi thích viết lách, sáng tác nhạc, thơ ca hoặc tham gia biểu diễn sân khấu.' },
+            { id: 13, type: 'A', text: 'Tôi thích môi trường làm việc tự do, linh hoạt, không gò bó bởi quy tắc.' },
+            { id: 14, type: 'A', text: 'Tôi nhạy cảm với cái đẹp, âm thanh, màu sắc và tính thẩm mỹ.' },
+            { id: 15, type: 'A', text: 'Tôi thường dùng trí tưởng tượng phong phú để thể hiện quan điểm cá nhân.' },
+
+            // S - Social (Xã hội)
+            { id: 16, type: 'S', text: 'Tôi thích lắng nghe, tư vấn và giúp đỡ người khác vượt qua khó khăn.' },
+            { id: 17, type: 'S', text: 'Tôi thích giảng dạy, truyền đạt kiến thức hoặc huấn luyện kỹ năng.' },
+            { id: 18, type: 'S', text: 'Tôi dễ dàng kết bạn và thích tham gia các hoạt động cộng đồng, thiện nguyện.' },
+            { id: 19, type: 'S', text: 'Tôi thích làm các công việc chăm sóc sức khỏe, tinh thần cho mọi người.' },
+            { id: 20, type: 'S', text: 'Tôi luôn đặt yếu tố con người và sự thấu hiểu lên hàng đầu.' },
+
+            // E - Enterprising (Thuyết phục)
+            { id: 21, type: 'E', text: 'Tôi thích làm nhóm trưởng, dẫn dắt người khác hoặc quản lý dự án.' },
+            { id: 22, type: 'E', text: 'Tôi tự tin giao tiếp, thuyết phục và đàm phán với người xung quanh.' },
+            { id: 23, type: 'E', text: 'Tôi yêu thích hoạt động kinh doanh, tìm kiếm cơ hội và tạo ra lợi nhuận.' },
+            { id: 24, type: 'E', text: 'Tôi sẵn sàng nhận trách nhiệm và chấp nhận rủi ro để đạt mục tiêu cao.' },
+            { id: 25, type: 'E', text: 'Tôi thích tạo ảnh hưởng và khẳng định vị thế của bản thân.' },
+
+            // C - Conventional (Trật tự)
+            { id: 26, type: 'C', text: 'Tôi thích công việc sắp xếp, phân loại dữ liệu, tài liệu gọn gàng.' },
+            { id: 27, type: 'C', text: 'Tôi thích làm việc với con số, số liệu thống kê hoặc bảng tính (Excel).' },
+            { id: 28, type: 'C', text: 'Tôi cẩn thận, chú trọng đến chi tiết nhỏ và tính chính xác cao.' },
+            { id: 29, type: 'C', text: 'Tôi thích tuân thủ quy trình, hướng dẫn và kế hoạch được đề ra sẵn.' },
+            { id: 30, type: 'C', text: 'Tôi cảm thấy an tâm khi công việc có tính ổn định và quy chuẩn rõ ràng.' }
+        ];
+
+        const RIASEC_META = {
+            R: {
+                code: 'R',
+                name: 'Thực tế (Realistic)',
+                color: '#ef4444',
+                bgColor: 'bg-red-500',
+                badgeBg: 'bg-red-50 text-red-700 border-red-200',
+                desc: 'Thích hành động, thao tác trực tiếp với vật thể, máy móc, công cụ, động thực vật hoặc các hoạt động ngoài trời.',
+                traits: ['Thực tế', 'Thích hành động', 'Khéo tay', 'Thẳng thắn', 'Kỹ thuật'],
+                majors: ['Kỹ thuật Cơ khí', 'Tự động hóa', 'Xây dựng', 'Nông lâm nghiệp', 'Công nghệ Ô tô', 'Kiến trúc công trình'],
+                careers: [
+                    { name: 'Kỹ sư Cơ khí / Tự động hóa', code: 'R' },
+                    { name: 'Kỹ thuật viên Điện - Điện tử', code: 'R' },
+                    { name: 'Kỹ sư Xây dựng / Hạ tầng', code: 'R' },
+                    { name: 'Chuyên viên Công nghệ Ô tô', code: 'R' },
+                    { name: 'Chuyên gia Nông nghiệp Công nghệ cao', code: 'R' }
+                ]
+            },
+            I: {
+                code: 'I',
+                name: 'Nghiên cứu (Investigative)',
+                color: '#0284c7',
+                bgColor: 'bg-sky-500',
+                badgeBg: 'bg-sky-50 text-sky-700 border-sky-200',
+                desc: 'Thích quan sát, học hỏi, phân tích, đánh giá, giải quyết các vấn đề phức tạp mang tính lý thuyết hoặc khoa học.',
+                traits: ['Tò mò', 'Tư duy logic', 'Độc lập', 'Thích phân tích', 'Chín chắn'],
+                majors: ['Khoa học Máy tính', 'Y đa khoa / Dược học', 'Sinh học phân tử', 'Toán tin ứng dụng', 'Phân tích dữ liệu'],
+                careers: [
+                    { name: 'Lập trình viên / Kỹ sư Phần mềm', code: 'I' },
+                    { name: 'Chuyên gia Phân tích Dữ liệu (Data Analyst)', code: 'I' },
+                    { name: 'Bác sĩ / Chuyên gia Y tế', code: 'I' },
+                    { name: 'Nhà nghiên cứu Khoa học', code: 'I' },
+                    { name: 'Chuyên gia An ninh mạng (Cybersecurity)', code: 'I' }
+                ]
+            },
+            A: {
+                code: 'A',
+                name: 'Nghệ thuật (Artistic)',
+                color: '#8b5cf6',
+                bgColor: 'bg-purple-500',
+                badgeBg: 'bg-purple-50 text-purple-700 border-purple-200',
+                desc: 'Thích tính sáng tạo, đổi mới, khả năng diễn xuất, sáng tác, mỹ thuật và làm việc trong môi trường không quy tắc.',
+                traits: ['Sáng tạo', 'Giàu tưởng tượng', 'Nhạy cảm', 'Tự do', 'Thẩm mỹ'],
+                majors: ['Thiết kế Đồ họa / UI-UX', 'Truyền thông Đa phương tiện', 'Kiến trúc / Thiết kế Nội thất', 'Điện ảnh / Truyền hình', 'Âm nhạc'],
+                careers: [
+                    { name: 'Nhà thiết kế UI/UX & Đồ họa', code: 'A' },
+                    { name: 'Chuyên viên Sáng tạo Nội dung (Content Creator)', code: 'A' },
+                    { name: 'Architect / Thiết kế Nội thất', code: 'A' },
+                    { name: 'Đạo diễn / Biên kịch / Copywriter', code: 'A' },
+                    { name: 'Chuyên viên Truyền thông & Media', code: 'A' }
+                ]
+            },
+            S: {
+                code: 'S',
+                name: 'Xã hội (Social)',
+                color: '#10b981',
+                bgColor: 'bg-emerald-500',
+                badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                desc: 'Thích làm việc với con số, con người, giúp đỡ, hướng dẫn, truyền đạt, chữa trị hoặc tư vấn cho người khác.',
+                traits: ['Thân thiện', 'Lắng nghe', 'Thấu hiểu', 'Thích hỗ trợ', 'Hòa đồng'],
+                majors: ['Sư phạm / Giáo dục', 'Tâm lý học', 'Công tác Xã hội', 'Quản trị Nhân sự', 'Y tế Công cộng / Điều dưỡng'],
+                careers: [
+                    { name: 'Giảng viên / Giáo viên', code: 'S' },
+                    { name: 'Chuyên gia Tư vấn Tâm lý', code: 'S' },
+                    { name: 'Chuyên viên Quản trị Nhân sự (HR)', code: 'S' },
+                    { name: 'Nhân viên Công tác Xã hội', code: 'S' },
+                    { name: 'Chuyên viên CSKH / Quan hệ Khách hàng', code: 'S' }
+                ]
+            },
+            E: {
+                code: 'E',
+                name: 'Thuyết phục (Enterprising)',
+                color: '#f59e0b',
+                bgColor: 'bg-amber-500',
+                badgeBg: 'bg-amber-50 text-amber-700 border-amber-200',
+                desc: 'Thích tác động, thuyết phục, lãnh đạo, quản lý con người hoặc tổ chức hướng tới mục tiêu kinh tế.',
+                traits: ['Lãnh đạo', 'Tự tin', 'Thuyết phục', 'Năng động', 'Dám chấp nhận rủi ro'],
+                majors: ['Quản trị Kinh doanh', 'Marketing / Digital Marketing', 'Luật Kinh tế', 'Tài chính Đầu tư', 'Khởi nghiệp (Entrepreneurship)'],
+                careers: [
+                    { name: 'Quản lý Dự án / Project Manager', code: 'E' },
+                    { name: 'Chuyên gia Marketing / Growth Hacking', code: 'E' },
+                    { name: 'Giám đốc Kinh doanh / Sales Manager', code: 'E' },
+                    { name: 'Luật sư / Tư vấn Pháp lý', code: 'E' },
+                    { name: 'Chủ doanh nghiệp / Nhà khởi nghiệp', code: 'E' }
+                ]
+            },
+            C: {
+                code: 'C',
+                name: 'Trật tự (Conventional)',
+                color: '#64748b',
+                bgColor: 'bg-slate-500',
+                badgeBg: 'bg-slate-100 text-slate-700 border-slate-200',
+                desc: 'Thích công việc xử lý dữ liệu, con số, công việc văn phòng, lưu trữ, kiểm tra chi tiết theo quy trình chuẩn.',
+                traits: ['Cẩn thận', 'Tỉ mỉ', 'Kỷ luật', 'Đáng tin cậy', 'Tổ chức tốt'],
+                majors: ['Kế toán / Kiểm toán', 'Tài chính - Ngân hàng', 'Quản trị Văn phòng', 'Hệ thống Thông tin Quản lý (MIS)', 'Thống kê Dữ liệu'],
+                careers: [
+                    { name: 'Kế toán viên / Kiểm toán viên', code: 'C' },
+                    { name: 'Chuyên viên Phân tích Tài chính', code: 'C' },
+                    { name: 'Quản trị Cơ sở Dữ liệu (DBA)', code: 'C' },
+                    { name: 'Chuyên viên Hành chính - Tổng hợp', code: 'C' },
+                    { name: 'Chuyên viên Quản lý Quy trình & Chất lượng', code: 'C' }
+                ]
+            }
+        };
+
+        // State variables
+        let answers = {}; // { qId: score (1-5) }
+        let currentPage = 0; // 0 to 5 (each page 5 questions)
+        const QUESTIONS_PER_PAGE = 5;
+        const TOTAL_PAGES = Math.ceil(HOLLAND_QUESTIONS.length / QUESTIONS_PER_PAGE);
+        let radarChartInstance = null;
+        let calculatedScores = {};
+
+        function startQuiz() {
+            document.getElementById('view-welcome').classList.add('hidden');
+            document.getElementById('view-quiz').classList.remove('hidden');
+            document.getElementById('btn-restart').classList.remove('hidden');
+            currentPage = 0;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetToWelcome() {
+            document.getElementById('view-welcome').classList.remove('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-results').classList.add('hidden');
+            document.getElementById('btn-restart').classList.add('hidden');
+        }
+
+        function confirmReset() {
+            if (Object.keys(answers).length > 0) {
+                answers = {};
+                startQuiz();
+            } else {
+                resetToWelcome();
+            }
+        }
+
+        function renderPage() {
+            const startIndex = currentPage * QUESTIONS_PER_PAGE;
+            const endIndex = Math.min(startIndex + QUESTIONS_PER_PAGE, HOLLAND_QUESTIONS.length);
+            const pageQuestions = HOLLAND_QUESTIONS.slice(startIndex, endIndex);
+
+            const container = document.getElementById('questions-list');
+            container.innerHTML = '';
+
+            pageQuestions.forEach((q, idx) => {
+                const globalIdx = startIndex + idx + 1;
+                const currentAnswer = answers[q.id] || 0;
+
+                const qCard = document.createElement('div');
+                qCard.className = 'bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200/80 transition';
+                qCard.innerHTML = `
+                    <div class="flex items-start space-x-3 mb-4">
+                        <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${globalIdx}</span>
+                        <p class="text-slate-800 font-semibold text-base sm:text-lg">${q.text}</p>
+                    </div>
+                    <div class="grid grid-cols-5 gap-1.5 sm:gap-3">
+                        ${[1, 2, 3, 4, 5].map(score => {
+                            const labels = ['Hoàn toàn sai', 'Gần như sai', 'Phân vân', 'Gần như đúng', 'Rất đúng'];
+                            const isSelected = currentAnswer === score;
+                            return `
+                                <button type="button" onclick="selectAnswer(${q.id}, ${score})" 
+                                    class="py-2.5 px-1 rounded-xl border text-xs sm:text-sm font-medium transition flex flex-col items-center justify-center space-y-1 ${
+                                        isSelected 
+                                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' 
+                                        : 'bg-slate-50/50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                                    }">
+                                    <span class="font-bold text-base sm:text-lg">${score}</span>
+                                    <span class="text-[10px] sm:text-xs leading-tight opacity-80 text-center">${labels[score - 1]}</span>
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(qCard);
+            });
+
+            // Update Progress Header
+            document.getElementById('quiz-page-title').innerText = `Trang ${currentPage + 1} / ${TOTAL_PAGES}`;
+            const answeredCount = Object.keys(answers).length;
+            document.getElementById('quiz-progress-text').innerText = `${answeredCount}/${HOLLAND_QUESTIONS.length} đã trả lời`;
+            const progressPercent = Math.round((answeredCount / HOLLAND_QUESTIONS.length) * 100);
+            document.getElementById('quiz-progress-bar').style.width = `${progressPercent}%`;
+
+            // Update Navigation Buttons
+            document.getElementById('btn-prev').disabled = currentPage === 0;
+            
+            const nextBtnLabel = document.getElementById('btn-next-label');
+            const nextBtnIcon = document.getElementById('btn-next-icon');
+            if (currentPage === TOTAL_PAGES - 1) {
+                nextBtnLabel.innerText = 'Xem kết quả';
+                nextBtnIcon.className = 'fa-solid fa-check text-xs';
+            } else {
+                nextBtnLabel.innerText = 'Tiếp theo';
+                nextBtnIcon.className = 'fa-solid fa-chevron-right text-xs';
+            }
+        }
+
+        function selectAnswer(qId, score) {
+            answers[qId] = score;
+            renderPage();
+        }
+
+        function nextPage() {
+            // Check if current page questions answered
+            const startIndex = currentPage * QUESTIONS_PER_PAGE;
+            const pageQuestions = HOLLAND_QUESTIONS.slice(startIndex, startIndex + QUESTIONS_PER_PAGE);
+            const unanswered = pageQuestions.filter(q => !answers[q.id]);
+
+            if (unanswered.length > 0) {
+                // Inline user hint (no alert)
+                showToast('Vui lòng hoàn thành tất cả các câu hỏi trên trang này trước khi tiếp tục!');
+                return;
+            }
+
+            if (currentPage < TOTAL_PAGES - 1) {
+                currentPage++;
+                renderPage();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // Calculate and finish
+                calculateAndShowResults();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                renderPage();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function showToast(msg) {
+            let toast = document.getElementById('custom-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'custom-toast';
+                toast.className = 'fixed bottom-6 right-6 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 flex items-center space-x-2 transition-all duration-300 transform opacity-0 translate-y-2';
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = `<i class="fa-solid fa-circle-info text-indigo-400"></i><span>${msg}</span>`;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 3000);
+        }
+
+        function calculateAndShowResults() {
+            // Reset scores
+            calculatedScores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+
+            HOLLAND_QUESTIONS.forEach(q => {
+                const score = answers[q.id] || 0;
+                calculatedScores[q.type] += score;
+            });
+
+            // Sort types by score
+            const sortedTypes = Object.keys(calculatedScores).sort((a, b) => calculatedScores[b] - calculatedScores[a]);
+            const top3Code = sortedTypes.slice(0, 3).join('');
+
+            // Hide Quiz, Show Results
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-results').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Display Top Code Badge
+            document.getElementById('top-holland-code').innerText = top3Code;
+            
+            const primaryGroup = RIASEC_META[sortedTypes[0]];
+            const secondaryGroup = RIASEC_META[sortedTypes[1]];
+            document.getElementById('top-holland-summary').innerText = 
+                `Hồ sơ sở thích nổi trội nhất của bạn bao gồm nhóm ${primaryGroup.name} kết hợp cùng nhóm ${secondaryGroup.name}.`;
+
+            // Render Radar Chart & Bar Breakdown
+            renderRadarChart(calculatedScores);
+            renderScoreBreakdownBars(calculatedScores, sortedTypes);
+
+            // Render Detailed Cards
+            renderTopTypeCards(sortedTypes.slice(0, 3));
+
+            // Render Recommended Careers
+            renderRecommendedCareers(sortedTypes.slice(0, 3));
+        }
+
+        function renderRadarChart(scores) {
+            const ctx = document.getElementById('chart-radar').getContext('2d');
+            
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'R - Thực tế',
+                        'I - Nghiên cứu',
+                        'A - Nghệ thuật',
+                        'S - Xã hội',
+                        'E - Thuyết phục',
+                        'C - Trật tự'
+                    ],
+                    datasets: [{
+                        label: 'Điểm số sở thích',
+                        data: [scores.R, scores.I, scores.A, scores.S, scores.E, scores.C],
+                        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                        borderColor: 'rgb(79, 70, 229)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgb(79, 70, 229)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(79, 70, 229)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#f1f5f9' },
+                            pointLabels: {
+                                font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' },
+                                color: '#334155'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 25,
+                            ticks: { stepSize: 5, display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderScoreBreakdownBars(scores, sortedKeys) {
+            const container = document.getElementById('scores-breakdown-list');
+            container.innerHTML = '';
+
+            sortedKeys.forEach(key => {
+                const meta = RIASEC_META[key];
+                const score = scores[key];
+                const percentage = Math.round((score / 25) * 100);
+
+                const item = document.createElement('div');
+                item.className = 'space-y-1';
+                item.innerHTML = `
+                    <div class="flex items-center justify-between text-xs font-semibold">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold ${meta.bgColor}">${key}</span>
+                            <span class="text-slate-700">${meta.name}</span>
+                        </div>
+                        <span class="text-slate-900 font-bold">${score} / 25 <span class="text-slate-400 text-[10px]">(${percentage}%)</span></span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500" style="width: ${percentage}%; background-color: ${meta.color}"></div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderTopTypeCards(topKeys) {
+            const container = document.getElementById('top-types-cards');
+            container.innerHTML = '';
+
+            topKeys.forEach((key, index) => {
+                const meta = RIASEC_META[key];
+                const rankLabels = ['Top 1 - Điểm cao nhất', 'Top 2 - Điểm thứ hai', 'Top 3 - Điểm thứ ba'];
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${meta.badgeBg}">
+                                ${rankLabels[index]}
+                            </span>
+                            <span class="text-xl font-black" style="color: ${meta.color}">${key}</span>
+                        </div>
+                        <h4 class="text-base font-bold text-slate-900 mb-2">${meta.name}</h4>
+                        <p class="text-xs text-slate-500 mb-4 leading-relaxed">${meta.desc}</p>
+                        
+                        <div class="mb-4">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Đặc điểm nổi bật</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${meta.traits.map(t => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Ngành học gợi ý</span>
+                        <ul class="text-xs text-slate-600 space-y-1">
+                            ${meta.majors.slice(0, 3).map(m => `<li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle-check text-[10px]" style="color: ${meta.color}"></i><span>${m}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderRecommendedCareers(topKeys) {
+            const pillsContainer = document.getElementById('filter-pills');
+            pillsContainer.innerHTML = '';
+
+            // Build filter pills
+            const allBtn = document.createElement('button');
+            allBtn.className = 'px-3 py-1 rounded-full bg-indigo-600 text-white text-xs font-semibold';
+            allBtn.innerText = 'Tất cả';
+            allBtn.onclick = () => filterCareers('ALL', topKeys);
+            pillsContainer.appendChild(allBtn);
+
+            topKeys.forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold transition';
+                btn.innerText = `Nhóm ${key}`;
+                btn.onclick = () => filterCareers(key, topKeys);
+                pillsContainer.appendChild(btn);
+            });
+
+            filterCareers('ALL', topKeys);
+        }
+
+        function filterCareers(filterKey, topKeys) {
+            const grid = document.getElementById('careers-recommend-grid');
+            grid.innerHTML = '';
+
+            let listToRender = [];
+            if (filterKey === 'ALL') {
+                topKeys.forEach(k => {
+                    listToRender = listToRender.concat(RIASEC_META[k].careers);
+                });
+            } else {
+                listToRender = RIASEC_META[filterKey].careers;
+            }
+
+            listToRender.forEach(c => {
+                const meta = RIASEC_META[c.code];
+                const item = document.createElement('div');
+                item.className = 'p-4 rounded-2xl bg-slate-50/70 border border-slate-200/60 flex items-center justify-between hover:bg-white hover:shadow-md transition';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center text-white shrink-0 ${meta.bgColor}">${c.code}</span>
+                        <span class="font-bold text-slate-800 text-xs sm:text-sm">${c.name}</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right-long text-slate-300 text-xs"></i>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        async function fetchGeminiAdvice() {
+            const adviceContainer = document.getElementById('ai-advice-container');
+            const loadingEl = document.getElementById('ai-advice-loading');
+            const contentEl = document.getElementById('ai-advice-content');
+
+            adviceContainer.classList.remove('hidden');
+            loadingEl.classList.remove('hidden');
+            contentEl.innerHTML = '';
+            
+            // Scroll to advice
+            adviceContainer.scrollIntoView({ behavior: 'smooth' });
+
+            const sortedTypes = Object.keys(calculatedScores).sort((a, b) => calculatedScores[b] - calculatedScores[a]);
+            const hollandCode = sortedTypes.slice(0, 3).join('');
+
+            const prompt = `Hồ sơ điểm số trắc nghiệm mật mã Holland (RIASEC) của tôi như sau:
+- R (Thực tế): ${calculatedScores.R}/25
+- I (Nghiên cứu): ${calculatedScores.I}/25
+- A (Nghệ thuật): ${calculatedScores.A}/25
+- S (Xã hội): ${calculatedScores.S}/25
+- E (Thuyết phục): ${calculatedScores.E}/25
+- C (Trật tự): ${calculatedScores.C}/25
+
+Mật mã 3 chữ cái chính của tôi là: ${hollandCode}.
+
+Hãy đóng vai một chuyên gia tư vấn định hướng nghề nghiệp cấp cao. Hãy viết báo cáo tư vấn chi tiết bằng tiếng Việt gồm các phần:
+1. **Phân tích tổng quan**: Ý nghĩa của tổ hợp mật mã ${hollandCode} và sự kết hợp giữa các nhóm điểm này đối với tính cách làm việc của tôi.
+2. **Ngành nghề & Lĩnh vực cốt lõi**: 3-5 vị trí công việc hoặc lĩnh vực sự nghiệp bứt phá nhất.
+3. **Kỹ năng cần bổ sung**: Những kỹ năng mềm và kỹ năng chuyên môn tôi nên tập trung phát triển ngay lúc này.
+4. **Môi trường làm việc lý tưởng**: Môi trường giúp tôi phát huy tối đa tiềm năng.
+
+Hãy trình bày rõ ràng, dễ đọc bằng định dạng HTML chuẩn (dùng các thẻ <h4 class="font-bold text-indigo-900 text-base mt-3 mb-1">, <p>, <ul>, <li>).`;
+
+            const apiKey = ""; // Canvas runtime automatically supplies key if left empty
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: {
+                    parts: [{ text: "Bạn là một chuyên gia tư vấn định hướng nghề nghiệp chuyên sâu theo lý thuyết John Holland. Hãy viết phân tích truyền cảm hứng, chính xác và có tính ứng dụng cao." }]
+                }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                loadingEl.classList.add('hidden');
+                if (resultText) {
+                    contentEl.innerHTML = formatMarkdownToHtml(resultText);
+                } else {
+                    contentEl.innerHTML = `<p class="text-red-500">Không thể lấy dữ liệu phản hồi từ AI. Vui lòng thử lại sau.</p>`;
+                }
+            } catch (err) {
+                console.error('Error fetching Gemini AI advice:', err);
+                loadingEl.classList.add('hidden');
+                contentEl.innerHTML = `
+                    <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                        <p class="font-bold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Đã xảy ra lỗi khi kết nối với AI Gemini</p>
+                        <p>Vui lòng kiểm tra kết nối mạng và thử lại sau.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Lightweight parser for simple markdown bold & lists if API returns raw markdown
+        function formatMarkdownToHtml(text) {
+            let html = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^### (.*$)/gim, '<h4 class="font-bold text-indigo-950 text-base mt-4 mb-2">$1</h4>')
+                .replace(/^## (.*$)/gim, '<h3 class="font-bold text-indigo-900 text-lg mt-5 mb-2">$1</h3>')
+                .replace(/^\* (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
+                .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>');
+
+            return html.split('\n\n').map(p => {
+                if (p.startsWith('<h') || p.startsWith('<li')) return p;
+                return `<p class="mb-2 leading-relaxed">${p}</p>`;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
